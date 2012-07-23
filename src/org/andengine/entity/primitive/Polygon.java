@@ -4,14 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.andengine.entity.primitive.vbo.HighPerformanceMeshVertexBufferObject;
-import org.andengine.extension.physics.box2d.util.triangulation.EarClippingTriangulator;
+import org.andengine.extension.physics.box2d.util.triangulation.EarClippingTriangulatorCopy;
 import org.andengine.opengl.vbo.DrawType;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.opengl.vbo.attribute.VertexBufferObjectAttribute;
 
 import android.util.Log;
 
-import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector2Copy;
 
 /**
  * 
@@ -32,7 +32,7 @@ public class Polygon extends Mesh {
 	protected float[] mVertexX;
 	protected float[] mVertexY;
 
-	protected static EarClippingTriangulator mTriangulator = new EarClippingTriangulator();
+	protected static EarClippingTriangulatorCopy mTriangulator = new EarClippingTriangulatorCopy();
 
 	// ===========================================================
 	// Constructors
@@ -94,7 +94,7 @@ public class Polygon extends Mesh {
 		mVertexY = pVertexY;
 		assert( mVertexX.length == mVertexY.length );
 		
-		List<Vector2> verticesVectors = mTriangulator.computeTriangles(buildListOfVector2(pVertexX, pVertexY));
+		List<Vector2Copy> verticesVectors = mTriangulator.computeTriangles(buildListOfVector2(pVertexX, pVertexY));
 		if( verticesVectors.size() == 0 )
 		{
 			Log.e("AndEngine", "Error: Polygon - Polygon can't be triangulated. Will not update vertices");
@@ -115,22 +115,22 @@ public class Polygon extends Mesh {
 	// Methods
 	// ===========================================================
 
-	protected static List<Vector2> buildListOfVector2(float[] pX, float [] pY )
+	protected static List<Vector2Copy> buildListOfVector2(float[] pX, float [] pY )
 	{
 		assert(pX.length == pY.length );
-		ArrayList<Vector2> vectors = new ArrayList<Vector2>( pX.length );
+		ArrayList<Vector2Copy> vectors = new ArrayList<Vector2Copy>( pX.length );
 		
 		for( int i = 0; i < pX.length; i++ )
 		{
 			// TODO avoid using new
-			Vector2 v = new Vector2( pX[i], pY[i]);
+			Vector2Copy v = new Vector2Copy( pX[i], pY[i]);
 			vectors.add(v);
 		}
 		
 		return vectors;
 	}
 	
-	protected static float[] buildVertexList(List<Vector2> vertices )
+	protected static float[] buildVertexList(List<Vector2Copy> vertices )
 	{
 		
 		float[] bufferData = new float[VERTEX_SIZE * vertices.size()];
@@ -138,9 +138,9 @@ public class Polygon extends Mesh {
 		return bufferData;
 	}
 	
-	protected static void updateVertices(List<Vector2> vertices, float[] pBufferData) {
+	protected static void updateVertices(List<Vector2Copy> vertices, float[] pBufferData) {
 		int i = 0;
-		for( Vector2 vertex : vertices )
+		for( Vector2Copy vertex : vertices )
 		{
 			pBufferData[(i * Mesh.VERTEX_SIZE) + Mesh.VERTEX_INDEX_X] = vertex.x;
 			pBufferData[(i * Mesh.VERTEX_SIZE) + Mesh.VERTEX_INDEX_Y] = vertex.y;
