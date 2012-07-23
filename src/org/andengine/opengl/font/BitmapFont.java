@@ -12,9 +12,10 @@ import org.andengine.opengl.texture.ITexture;
 import org.andengine.opengl.texture.TextureManager;
 import org.andengine.opengl.texture.TextureOptions;
 import org.andengine.opengl.texture.bitmap.BitmapTexture;
-import org.andengine.opengl.texture.bitmap.BitmapTexture.BitmapTextureFormat;
+import org.andengine.opengl.texture.bitmap.BitmapTextureFormat;
 import org.andengine.util.StreamUtils;
 import org.andengine.util.TextUtils;
+import org.andengine.util.adt.io.in.AssetInputStreamOpener;
 
 import android.content.res.AssetManager;
 import android.util.SparseArray;
@@ -716,12 +717,7 @@ public class BitmapFont implements IFont {
 			final String file = BitmapFont.getStringAttribute(pageAttributes, BitmapFont.TAG_PAGE_ATTRIBUTE_FILE_INDEX, BitmapFont.TAG_PAGE_ATTRIBUTE_FILE);
 
 			final String assetPath = pAssetBasePath + file;
-			this.mTexture = new BitmapTexture(BitmapFont.this.mTextureManager, BitmapFont.this.mBitmapTextureFormat, BitmapFont.this.mTextureOptions) {
-				@Override
-				protected InputStream onGetInputStream() throws IOException {
-					return pAssetManager.open(assetPath);
-				}
-			};
+			this.mTexture = new BitmapTexture(BitmapFont.this.mTextureManager, new AssetInputStreamOpener(pAssetManager, assetPath), BitmapFont.this.mBitmapTextureFormat, BitmapFont.this.mTextureOptions);
 		}
 
 		// ===========================================================

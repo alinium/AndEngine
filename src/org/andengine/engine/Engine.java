@@ -4,6 +4,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.andengine.BuildConfig;
 import org.andengine.audio.music.MusicFactory;
 import org.andengine.audio.music.MusicManager;
 import org.andengine.audio.sound.SoundFactory;
@@ -28,7 +29,7 @@ import org.andengine.input.sensor.orientation.OrientationData;
 import org.andengine.input.sensor.orientation.OrientationSensorOptions;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.input.touch.controller.ITouchController;
-import org.andengine.input.touch.controller.ITouchController.ITouchEventCallback;
+import org.andengine.input.touch.controller.ITouchEventCallback;
 import org.andengine.input.touch.controller.MultiTouchController;
 import org.andengine.input.touch.controller.SingleTouchController;
 import org.andengine.opengl.font.FontFactory;
@@ -65,7 +66,7 @@ import android.view.WindowManager;
  * @author Nicolas Gramlich
  * @since 12:21:31 - 08.03.2010
  */
-public class Engine implements SensorEventListener, OnTouchListener, ITouchEventCallback, TimeConstants, LocationListener {
+public class Engine implements SensorEventListener, OnTouchListener, ITouchEventCallback, LocationListener {
 	// ===========================================================
 	// Constants
 	// ===========================================================
@@ -86,8 +87,7 @@ public class Engine implements SensorEventListener, OnTouchListener, ITouchEvent
 
 	private final EngineLock mEngineLock;
 
-	private final UpdateThread mUpdateThread = new UpdateThread();
-
+	private final UpdateThread mUpdateThread;
 	private final RunnableHandler mUpdateThreadRunnableHandler = new RunnableHandler();
 
 	private final EngineOptions mEngineOptions;
@@ -166,6 +166,15 @@ public class Engine implements SensorEventListener, OnTouchListener, ITouchEvent
 		}
 
 		/* Start the UpdateThread. */
+		if(this.mEngineOptions.hasUpdateThread()) {
+			this.mUpdateThread = this.mEngineOptions.getUpdateThread();
+		} else {
+			this.mUpdateThread = new UpdateThread();
+		}
+		this.mUpdateThread.setEngine(this);
+	}
+
+	public void startUpdateThread() throws IllegalThreadStateException {
 		this.mUpdateThread.start();
 	}
 
@@ -451,7 +460,22 @@ public class Engine implements SensorEventListener, OnTouchListener, ITouchEvent
 	// ===========================================================
 
 	public void runOnUpdateThread(final Runnable pRunnable) {
-		this.mUpdateThreadRunnableHandler.postRunnable(pRunnable);
+		this.runOnUpdateThread(pRunnable, true);
+	}
+
+	/**
+	 * This method is useful when you want to execute code on the {@link UpdateThread}, even though the Engine is paused.
+	 *
+	 * @param pRunnable the {@link Runnable} to be run on the {@link UpdateThread}.
+	 * @param pOnlyWhenEngineRunning if <code>true</code>, the execution of the {@link Runnable} will be delayed until the next time {@link Engine#onUpdateUpdateHandlers(float)} is picked up, which is when {@link Engine#isRunning()} is <code>true</code>.
+	 * 								 if <code>false</code>, the execution of the {@link Runnable} will happen as soon as possible on the {@link UpdateThread}, no matter what {@link Engine#isRunning()} is.
+	 */
+	public void runOnUpdateThread(final Runnable pRunnable, final boolean pOnlyWhenEngineRunning) {
+		if(pOnlyWhenEngineRunning) {
+			this.mUpdateThreadRunnableHandler.postRunnable(pRunnable);
+		} else {
+			this.mUpdateThread.postRunnable(pRunnable);
+		}
 	}
 
 	/**
@@ -755,7 +779,7 @@ public class Engine implements SensorEventListener, OnTouchListener, ITouchEvent
 	// Inner and Anonymous Classes
 	// ===========================================================
 
-	private class UpdateThread extends Thread {
+	public static class UpdateThread extends Thread {
 		// ===========================================================
 		// Constants
 		// ===========================================================
@@ -763,6 +787,9 @@ public class Engine implements SensorEventListener, OnTouchListener, ITouchEvent
 		// ===========================================================
 		// Fields
 		// ===========================================================
+
+		private Engine mEngine;
+		private final RunnableHandler mRunnableHandler = new RunnableHandler();
 
 		// ===========================================================
 		// Constructors
@@ -776,19 +803,26 @@ public class Engine implements SensorEventListener, OnTouchListener, ITouchEvent
 		// Getter & Setter
 		// ===========================================================
 
+		public void setEngine(final Engine pEngine) {
+			this.mEngine = pEngine;
+		}
+
 		// ===========================================================
 		// Methods for/from SuperClass/Interfaces
 		// ===========================================================
 
 		@Override
 		public void run() {
-			android.os.Process.setThreadPriority(Engine.this.mEngineOptions.getUpdateThreadPriority());
+			android.os.Process.setThreadPriority(this.mEngine.getEngineOptions().getUpdateThreadPriority());
 			try {
 				while(true) {
-					Engine.this.onTickUpdate();
+					this.mRunnableHandler.onUpdate(0);
+					this.mEngine.onTickUpdate();
 				}
 			} catch (final InterruptedException e) {
-				Debug.d(this.getClass().getSimpleName() + " interrupted. Don't worry - this " + e.getClass().getSimpleName() + " is most likely expected!", e);
+				if(BuildConfig.DEBUG) {
+					Debug.d(this.getClass().getSimpleName() + " interrupted. Don't worry - this " + e.getClass().getSimpleName() + " is most likely expected!", e);
+				}
 				this.interrupt();
 			}
 		}
@@ -796,6 +830,10 @@ public class Engine implements SensorEventListener, OnTouchListener, ITouchEvent
 		// ===========================================================
 		// Methods
 		// ===========================================================
+
+		public void postRunnable(final Runnable pRunnable) {
+			this.mRunnableHandler.postRunnable(pRunnable);
+		}
 
 		// ===========================================================
 		// Inner and Anonymous Classes
@@ -852,7 +890,7 @@ public class Engine implements SensorEventListener, OnTouchListener, ITouchEvent
 		// Constructors
 		// ===========================================================
 
-		public EngineLock(final boolean pFair){
+		public EngineLock(final boolean pFair) {
 			super(pFair);
 		}
 

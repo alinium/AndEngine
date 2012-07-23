@@ -6,13 +6,10 @@ import java.nio.ByteOrder;
 import org.andengine.opengl.shader.ShaderProgram;
 import org.andengine.opengl.util.BufferUtils;
 import org.andengine.opengl.util.GLState;
-import org.andengine.opengl.vbo.VertexBufferObject.DrawType;
 import org.andengine.opengl.vbo.attribute.VertexBufferObjectAttributes;
 import org.andengine.util.adt.DataConstants;
-import org.andengine.util.system.SystemUtils;
 
 import android.opengl.GLES20;
-import android.os.Build;
 
 /**
  * Compared to a {@link HighPerformanceVertexBufferObject} or a {@link LowMemoryVertexBufferObject}, the {@link ZeroMemoryVertexBufferObject} uses <b><u>no</u> permanent heap memory</b>,
@@ -151,7 +148,7 @@ public abstract class ZeroMemoryVertexBufferObject implements IVertexBufferObjec
 			this.mVertexBufferObjectManager.onVertexBufferObjectLoaded(this);
 		}
 
-		pGLState.bindBuffer(this.mHardwareBufferID);
+		pGLState.bindArrayBuffer(this.mHardwareBufferID);
 
 		if(this.mDirtyOnHardware) {
 			ByteBuffer byteBuffer = null;
@@ -187,7 +184,7 @@ public abstract class ZeroMemoryVertexBufferObject implements IVertexBufferObjec
 
 	@Override
 	public void unloadFromHardware(final GLState pGLState) {
-		pGLState.deleteBuffer(this.mHardwareBufferID);
+		pGLState.deleteArrayBuffer(this.mHardwareBufferID);
 
 		this.mHardwareBufferID = IVertexBufferObject.HARDWARE_BUFFER_ID_INVALID;
 	}
@@ -236,23 +233,13 @@ public abstract class ZeroMemoryVertexBufferObject implements IVertexBufferObjec
 	 * @return a {@link ByteBuffer} to be passed to {@link ZeroMemoryVertexBufferObject#onPopulateBufferData(ByteBuffer)}.
 	 */
 	protected ByteBuffer aquireByteBuffer() {
-		final ByteBuffer byteBuffer;
-		if(SystemUtils.isAndroidVersion(Build.VERSION_CODES.HONEYCOMB, Build.VERSION_CODES.HONEYCOMB_MR2)) {
-			/* Honeycomb workaround for issue 16941. */
-			byteBuffer = BufferUtils.allocateDirect(this.getByteCapacity());
-		} else {
-			/* Other SDK versions. */
-			byteBuffer = ByteBuffer.allocateDirect(this.getByteCapacity());
-		}
+		final ByteBuffer byteBuffer = BufferUtils.allocateDirectByteBuffer(this.getByteCapacity());
 		byteBuffer.order(ByteOrder.nativeOrder());
 		return byteBuffer;
 	}
 
 	protected void releaseByteBuffer(final ByteBuffer byteBuffer) {
-		/* Cleanup due to 'Honeycomb workaround for issue 16941' in constructor. */
-		if(SystemUtils.isAndroidVersion(Build.VERSION_CODES.HONEYCOMB, Build.VERSION_CODES.HONEYCOMB_MR2)) {
-			BufferUtils.freeDirect(byteBuffer);
-		}
+		BufferUtils.freeDirectByteBuffer(byteBuffer);
 	}
 
 	// ===========================================================

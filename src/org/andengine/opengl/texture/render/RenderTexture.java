@@ -6,6 +6,7 @@ import java.nio.IntBuffer;
 import org.andengine.opengl.exception.GLException;
 import org.andengine.opengl.exception.GLFrameBufferException;
 import org.andengine.opengl.exception.RenderTextureInitializationException;
+import org.andengine.opengl.texture.ITextureStateListener;
 import org.andengine.opengl.texture.PixelFormat;
 import org.andengine.opengl.texture.Texture;
 import org.andengine.opengl.texture.TextureManager;
@@ -48,11 +49,11 @@ public class RenderTexture extends Texture {
 	// Fields
 	// ===========================================================
 
-	private final PixelFormat mPixelFormat;
-	private final int mWidth;
-	private final int mHeight;
+	protected final PixelFormat mPixelFormat;
+	protected final int mWidth;
+	protected final int mHeight;
 
-	private int mFramebufferObjectID;
+	protected int mFramebufferObjectID;
 	private int mPreviousFramebufferObjectID;
 	private int mPreviousViewPortX;
 	private int mPreviousViewPortY;
@@ -66,11 +67,23 @@ public class RenderTexture extends Texture {
 	// ===========================================================
 
 	public RenderTexture(final TextureManager pTextureManager, final int pWidth, final int pHeight) {
-		this(pTextureManager, pWidth, pHeight, PixelFormat.RGBA_8888);
+		this(pTextureManager, pWidth, pHeight, PixelFormat.RGBA_8888, TextureOptions.NEAREST);
 	}
 
 	public RenderTexture(final TextureManager pTextureManager, final int pWidth, final int pHeight, final PixelFormat pPixelFormat) {
-		super(pTextureManager, pPixelFormat, TextureOptions.NEAREST, null);
+		this(pTextureManager, pWidth, pHeight, pPixelFormat, TextureOptions.NEAREST);
+	}
+
+	public RenderTexture(final TextureManager pTextureManager, final int pWidth, final int pHeight, final TextureOptions pTextureOptions) {
+		this(pTextureManager, pWidth, pHeight, PixelFormat.RGBA_8888, pTextureOptions);
+	}
+
+	public RenderTexture(final TextureManager pTextureManager, final int pWidth, final int pHeight, final PixelFormat pPixelFormat, final TextureOptions pTextureOptions) {
+		this(pTextureManager, pWidth, pHeight, pPixelFormat, pTextureOptions, null);
+	}
+
+	public RenderTexture(final TextureManager pTextureManager, final int pWidth, final int pHeight, final PixelFormat pPixelFormat, final TextureOptions pTextureOptions, final ITextureStateListener pTextureStateListener) {
+		super(pTextureManager, pPixelFormat, pTextureOptions, pTextureStateListener);
 
 		this.mWidth = pWidth;
 		this.mHeight = pHeight;
@@ -307,15 +320,15 @@ public class RenderTexture extends Texture {
 		this.mInitialized = false;
 	}
 
-	private void savePreviousFramebufferObjectID(final GLState pGLState) {
+	protected void savePreviousFramebufferObjectID(final GLState pGLState) {
 		this.mPreviousFramebufferObjectID = pGLState.getActiveFramebuffer();
 	}
 
-	private void restorePreviousFramebufferObjectID(final GLState pGLState) {
+	protected void restorePreviousFramebufferObjectID(final GLState pGLState) {
 		pGLState.bindFramebuffer(this.mPreviousFramebufferObjectID);
 	}
 
-	private void savePreviousViewport() {
+	protected void savePreviousViewport() {
 		GLES20.glGetIntegerv(GLES20.GL_VIEWPORT, RenderTexture.VIEWPORT_CONTAINER, 0);
 
 		this.mPreviousViewPortX = RenderTexture.VIEWPORT_CONTAINER[RenderTexture.VIEWPORT_CONTAINER_X_INDEX];
@@ -324,7 +337,7 @@ public class RenderTexture extends Texture {
 		this.mPreviousViewPortHeight = RenderTexture.VIEWPORT_CONTAINER[RenderTexture.VIEWPORT_CONTAINER_HEIGHT_INDEX];
 	}
 
-	private void resotorePreviousViewport() {
+	protected void resotorePreviousViewport() {
 		GLES20.glViewport(this.mPreviousViewPortX, this.mPreviousViewPortY, this.mPreviousViewPortWidth, this.mPreviousViewPortHeight);
 	}
 
