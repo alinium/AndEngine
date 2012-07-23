@@ -13,14 +13,16 @@
 
 package com.badlogic.gdx.math;
 
+import android.util.FloatMath;
+
 /**
  * Encapsulates a 2D vector. Allows chaining methods by returning a reference to itself
  * @author badlogicgames@gmail.com
  * 
  */
-public final class Vector2 {
+public final class Vector2Copy {
 	/** static temporary vector **/
-	private final static Vector2 tmp = new Vector2();
+	private final static Vector2Copy tmp = new Vector2Copy();
 
 	/** the x-component of this vector **/
 	public float x;
@@ -30,7 +32,7 @@ public final class Vector2 {
 	/**
 	 * Constructs a new vector at (0,0)
 	 */
-	public Vector2 () {
+	public Vector2Copy () {
 
 	}
 
@@ -39,7 +41,7 @@ public final class Vector2 {
 	 * @param x The x-component
 	 * @param y The y-component
 	 */
-	public Vector2 (float x, float y) {
+	public Vector2Copy (float x, float y) {
 		this.x = x;
 		this.y = y;
 	}
@@ -48,22 +50,22 @@ public final class Vector2 {
 	 * Constructs a vector from the given vector
 	 * @param v The vector
 	 */
-	public Vector2 (Vector2 v) {
+	public Vector2Copy (Vector2Copy v) {
 		set(v);
 	}
 
 	/**
 	 * @return a copy of this vector
 	 */
-	public Vector2 cpy () {
-		return new Vector2(this);
+	public Vector2Copy cpy () {
+		return new Vector2Copy(this);
 	}
 
 	/**
 	 * @return The euclidian length
 	 */
 	public float len () {
-		return (float)Math.sqrt(x * x + y * y);
+		return FloatMath.sqrt(x * x + y * y);
 	}
 
 	/**
@@ -78,7 +80,7 @@ public final class Vector2 {
 	 * @param v The vector
 	 * @return This vector for chaining
 	 */
-	public Vector2 set (Vector2 v) {
+	public Vector2Copy set (Vector2Copy v) {
 		x = v.x;
 		y = v.y;
 		return this;
@@ -90,7 +92,7 @@ public final class Vector2 {
 	 * @param y The y-component
 	 * @return This vector for chaining
 	 */
-	public Vector2 set (float x, float y) {
+	public Vector2Copy set (float x, float y) {
 		this.x = x;
 		this.y = y;
 		return this;
@@ -101,7 +103,7 @@ public final class Vector2 {
 	 * @param v The vector
 	 * @return This vector for chaining
 	 */
-	public Vector2 sub (Vector2 v) {
+	public Vector2Copy sub (Vector2Copy v) {
 		x -= v.x;
 		y -= v.y;
 		return this;
@@ -111,7 +113,7 @@ public final class Vector2 {
 	 * Normalizes this vector
 	 * @return This vector for chaining
 	 */
-	public Vector2 nor () {
+	public Vector2Copy nor () {
 		float len = len();
 		if (len != 0) {
 			x /= len;
@@ -125,7 +127,7 @@ public final class Vector2 {
 	 * @param v The vector
 	 * @return This vector for chaining
 	 */
-	public Vector2 add (Vector2 v) {
+	public Vector2Copy add (Vector2Copy v) {
 		x += v.x;
 		y += v.y;
 		return this;
@@ -137,7 +139,7 @@ public final class Vector2 {
 	 * @param y The y-component
 	 * @return This vector for chaining
 	 */
-	public Vector2 add (float x, float y) {
+	public Vector2Copy add (float x, float y) {
 		this.x += x;
 		this.y += y;
 		return this;
@@ -147,7 +149,7 @@ public final class Vector2 {
 	 * @param v The other vector
 	 * @return The dot product between this and the other vector
 	 */
-	public float dot (Vector2 v) {
+	public float dot (Vector2Copy v) {
 		return x * v.x + y * v.y;
 	}
 
@@ -156,7 +158,7 @@ public final class Vector2 {
 	 * @param scalar The scalar
 	 * @return This vector for chaining
 	 */
-	public Vector2 mul (float scalar) {
+	public Vector2Copy mul (float scalar) {
 		x *= scalar;
 		y *= scalar;
 		return this;
@@ -166,10 +168,10 @@ public final class Vector2 {
 	 * @param v The other vector
 	 * @return the distance between this and the other vector
 	 */
-	public float dst (Vector2 v) {
+	public float dst (Vector2Copy v) {
 		float x_d = v.x - x;
 		float y_d = v.y - y;
-		return (float)Math.sqrt(x_d * x_d + y_d * y_d);
+		return FloatMath.sqrt(x_d * x_d + y_d * y_d);
 	}
 
 	/**
@@ -180,14 +182,14 @@ public final class Vector2 {
 	public float dst (float x, float y) {
 		float x_d = x - this.x;
 		float y_d = y - this.y;
-		return (float)Math.sqrt(x_d * x_d + y_d * y_d);
+		return FloatMath.sqrt(x_d * x_d + y_d * y_d);
 	}
 
 	/**
 	 * @param v The other vector
 	 * @return the squared distance between this and the other vector
 	 */
-	public float dst2 (Vector2 v) {
+	public float dst2 (Vector2Copy v) {
 		float x_d = v.x - x;
 		float y_d = v.y - y;
 		return x_d * x_d + y_d * y_d;
@@ -203,17 +205,17 @@ public final class Vector2 {
 	 * @param y The y-component of the other vector
 	 * @return This vector for chaining
 	 */
-	public Vector2 sub (float x, float y) {
+	public Vector2Copy sub (float x, float y) {
 		this.x -= x;
 		this.y -= y;
 		return this;
 	}
 
 	/**
-	 * @return a temporary copy of this vector. Use with care as this is backed by a single static Vector2 instance. v1.tmp().add(
+	 * @return a temporary copy of this vector. Use with care as this is backed by a single static Vector2Copy instance. v1.tmp().add(
 	 *         v2.tmp() ) will not work!
 	 */
-	public Vector2 tmp () {
+	public Vector2Copy tmp () {
 		return tmp.set(this);
 	}
 	
@@ -221,7 +223,7 @@ public final class Vector2 {
 	 * @param v the other vector
 	 * @return The cross product between this and the other vector
 	 */
-	public float cross(final Vector2 v) {
+	public float cross(final Vector2Copy v) {
 		return this.x * v.y - v.x * this.y;
 	}
 	/**
