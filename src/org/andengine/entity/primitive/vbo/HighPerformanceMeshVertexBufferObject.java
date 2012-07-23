@@ -1,6 +1,8 @@
 package org.andengine.entity.primitive.vbo;
 
 import org.andengine.entity.primitive.Mesh;
+import org.andengine.entity.sprite.Sprite;
+import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.vbo.DrawType;
 import org.andengine.opengl.vbo.HighPerformanceVertexBufferObject;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
@@ -60,7 +62,52 @@ public class HighPerformanceMeshVertexBufferObject extends HighPerformanceVertex
 
 		this.setDirtyOnHardware();
 	}
+	
+	@Override
+	public void onUpdateTextureCoordinates(final Mesh pMesh) {
+		final float[] bufferData = this.mBufferData;
 
+		final ITextureRegion textureRegion = pMesh.getTextureRegion(); // TODO Optimize with field access?
+
+		final float u;
+		final float v;
+		final float u2;
+		final float v2;
+
+		u = textureRegion.getU();
+		u2 = textureRegion.getU2();
+		v = textureRegion.getV();
+		v2 = textureRegion.getV2();
+
+		if(textureRegion.isRotated()) {
+			bufferData[0 * Sprite.VERTEX_SIZE + Sprite.TEXTURECOORDINATES_INDEX_U] = u2;
+			bufferData[0 * Sprite.VERTEX_SIZE + Sprite.TEXTURECOORDINATES_INDEX_V] = v;
+
+			bufferData[1 * Sprite.VERTEX_SIZE + Sprite.TEXTURECOORDINATES_INDEX_U] = u;
+			bufferData[1 * Sprite.VERTEX_SIZE + Sprite.TEXTURECOORDINATES_INDEX_V] = v;
+
+			bufferData[2 * Sprite.VERTEX_SIZE + Sprite.TEXTURECOORDINATES_INDEX_U] = u2;
+			bufferData[2 * Sprite.VERTEX_SIZE + Sprite.TEXTURECOORDINATES_INDEX_V] = v2;
+
+			bufferData[3 * Sprite.VERTEX_SIZE + Sprite.TEXTURECOORDINATES_INDEX_U] = u;
+			bufferData[3 * Sprite.VERTEX_SIZE + Sprite.TEXTURECOORDINATES_INDEX_V] = v2;
+		} else {
+			bufferData[0 * Sprite.VERTEX_SIZE + Sprite.TEXTURECOORDINATES_INDEX_U] = u;
+			bufferData[0 * Sprite.VERTEX_SIZE + Sprite.TEXTURECOORDINATES_INDEX_V] = v;
+
+			bufferData[1 * Sprite.VERTEX_SIZE + Sprite.TEXTURECOORDINATES_INDEX_U] = u;
+			bufferData[1 * Sprite.VERTEX_SIZE + Sprite.TEXTURECOORDINATES_INDEX_V] = v2;
+
+			bufferData[2 * Sprite.VERTEX_SIZE + Sprite.TEXTURECOORDINATES_INDEX_U] = u2;
+			bufferData[2 * Sprite.VERTEX_SIZE + Sprite.TEXTURECOORDINATES_INDEX_V] = v;
+
+			bufferData[3 * Sprite.VERTEX_SIZE + Sprite.TEXTURECOORDINATES_INDEX_U] = u2;
+			bufferData[3 * Sprite.VERTEX_SIZE + Sprite.TEXTURECOORDINATES_INDEX_V] = v2;
+		}
+
+		this.setDirtyOnHardware();
+	}
+	
 	// ===========================================================
 	// Methods
 	// ===========================================================

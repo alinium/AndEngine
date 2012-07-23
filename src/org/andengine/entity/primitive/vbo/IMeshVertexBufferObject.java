@@ -21,4 +21,5 @@ public interface IMeshVertexBufferObject extends IVertexBufferObject {
 	public float[] getBufferData();
 	public void onUpdateColor(final Mesh pMesh);
 	public void onUpdateVertices(final Mesh pMesh);
+	public void onUpdateTextureCoordinates(final Mesh pMesh);
 }

@@ -1,14 +1,11 @@
 package org.andengine.entity.primitive;
 
-import java.security.spec.MGF1ParameterSpec;
-
 import org.andengine.engine.camera.Camera;
 import org.andengine.entity.primitive.vbo.HighPerformanceMeshVertexBufferObject;
 import org.andengine.entity.primitive.vbo.IMeshVertexBufferObject;
 import org.andengine.entity.shape.IShape;
 import org.andengine.entity.shape.RectangularShape;
 import org.andengine.entity.shape.Shape;
-import org.andengine.entity.sprite.Sprite;
 import org.andengine.opengl.shader.PositionColorShaderProgram;
 import org.andengine.opengl.shader.constants.ShaderProgramConstants;
 import org.andengine.opengl.texture.region.ITextureRegion;
@@ -209,50 +206,4 @@ public class Mesh extends Shape {
 	// ===========================================================
 	// Inner and Anonymous Classes
 	// ===========================================================
-		public void onUpdateTextureCoordinates(final Mesh pMesh);
-
-			this.setDirtyOnHardware();
-		}
-		
-		@Override
-		public void onUpdateTextureCoordinates(final Mesh pMesh) {
-			final float[] bufferData = this.mBufferData;
-
-			final ITextureRegion textureRegion = pMesh.getTextureRegion(); // TODO Optimize with field access?
-
-			final float u;
-			final float v;
-			final float u2;
-			final float v2;
-
-			u = textureRegion.getU();
-			u2 = textureRegion.getU2();
-			v = textureRegion.getV();
-			v2 = textureRegion.getV2();
-
-			if(textureRegion.isRotated()) {
-				bufferData[0 * Sprite.VERTEX_SIZE + Sprite.TEXTURECOORDINATES_INDEX_U] = u2;
-				bufferData[0 * Sprite.VERTEX_SIZE + Sprite.TEXTURECOORDINATES_INDEX_V] = v;
-
-				bufferData[1 * Sprite.VERTEX_SIZE + Sprite.TEXTURECOORDINATES_INDEX_U] = u;
-				bufferData[1 * Sprite.VERTEX_SIZE + Sprite.TEXTURECOORDINATES_INDEX_V] = v;
-
-				bufferData[2 * Sprite.VERTEX_SIZE + Sprite.TEXTURECOORDINATES_INDEX_U] = u2;
-				bufferData[2 * Sprite.VERTEX_SIZE + Sprite.TEXTURECOORDINATES_INDEX_V] = v2;
-
-				bufferData[3 * Sprite.VERTEX_SIZE + Sprite.TEXTURECOORDINATES_INDEX_U] = u;
-				bufferData[3 * Sprite.VERTEX_SIZE + Sprite.TEXTURECOORDINATES_INDEX_V] = v2;
-			} else {
-				bufferData[0 * Sprite.VERTEX_SIZE + Sprite.TEXTURECOORDINATES_INDEX_U] = u;
-				bufferData[0 * Sprite.VERTEX_SIZE + Sprite.TEXTURECOORDINATES_INDEX_V] = v;
-
-				bufferData[1 * Sprite.VERTEX_SIZE + Sprite.TEXTURECOORDINATES_INDEX_U] = u;
-				bufferData[1 * Sprite.VERTEX_SIZE + Sprite.TEXTURECOORDINATES_INDEX_V] = v2;
-
-				bufferData[2 * Sprite.VERTEX_SIZE + Sprite.TEXTURECOORDINATES_INDEX_U] = u2;
-				bufferData[2 * Sprite.VERTEX_SIZE + Sprite.TEXTURECOORDINATES_INDEX_V] = v;
-
-				bufferData[3 * Sprite.VERTEX_SIZE + Sprite.TEXTURECOORDINATES_INDEX_U] = u2;
-				bufferData[3 * Sprite.VERTEX_SIZE + Sprite.TEXTURECOORDINATES_INDEX_V] = v2;
-			}
 }
