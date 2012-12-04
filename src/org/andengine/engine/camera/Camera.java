@@ -43,7 +43,7 @@ public class Camera implements IUpdateHandler {
 
 	private HUD mHUD;
 
-	private IEntity mChaseEntity;
+	protected IEntity mChaseEntity;
 
 	protected float mRotation = 0;
 	protected float mCameraSceneRotation = 0;
