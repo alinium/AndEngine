@@ -2,6 +2,7 @@ package org.andengine.entity.shape;
 
 import org.andengine.engine.camera.Camera;
 import org.andengine.entity.primitive.Line;
+import org.andengine.entity.primitive.Rectangle;
 import org.andengine.opengl.shader.ShaderProgram;
 import org.andengine.util.algorithm.collision.RectangularShapeCollisionChecker;
 
@@ -23,6 +24,7 @@ public abstract class RectangularShape extends Shape implements IAreaShape {
 
 	protected float mWidth;
 	protected float mHeight;
+	protected float mSlop;
 
 	// ===========================================================
 	// Constructors
@@ -102,7 +104,10 @@ public abstract class RectangularShape extends Shape implements IAreaShape {
 
 	@Override
 	public boolean contains(final float pX, final float pY) {
-		return RectangularShapeCollisionChecker.checkContains(this, pX, pY);
+		Rectangle rectWithSlop = new Rectangle(getX() - mSlop, getY() - mSlop, mWidth + (mSlop*2), mHeight + (mSlop*2), getVertexBufferObjectManager());
+		boolean contains = RectangularShapeCollisionChecker.checkContains(rectWithSlop, pX, pY);
+		rectWithSlop = null;
+		return contains;
 	}
 
 	@Override
@@ -129,6 +134,10 @@ public abstract class RectangularShape extends Shape implements IAreaShape {
 	// Methods
 	// ===========================================================
 
+	public void setSlop(float pSlop) {
+		this.mSlop = pSlop;
+	}
+	
 	public void resetRotationCenter() {
 		this.mRotationCenterX = this.mWidth * 0.5f;
 		this.mRotationCenterY = this.mHeight * 0.5f;
