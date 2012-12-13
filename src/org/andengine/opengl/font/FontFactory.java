@@ -8,6 +8,7 @@ import org.andengine.opengl.texture.bitmap.BitmapTextureFormat;
 import org.andengine.util.color.Color;
 
 import android.content.res.AssetManager;
+import android.graphics.LinearGradient;
 import android.graphics.Typeface;
 
 /**
@@ -176,6 +177,89 @@ public class FontFactory {
 		return new StrokeFont(pFontManager, pTexture, Typeface.createFromAsset(pAssetManager, FontFactory.sAssetBasePath + pAssetPath), pSize, pAntiAlias, pColor, pStrokeWidth, pStrokeColor, pStrokeOnly);
 	}
 
+	// ===========================================================
+	// Gradient Fonts
+	// http://www.andengine.org/forums/gles2/gradient-to-font-t7948.html?sid=062a626470f4483c3cbee03853feff1b#p34667
+	// ===========================================================
+	
+	public static GradientFont createGradientFromAsset(final FontManager pFontManager, final ITexture pTexture, final AssetManager pAssetManager,
+			final String pAssetPath, final float pSize, final boolean pAntiAlias, final Color pColorFrom, final Color pColorTo) {
+		return new GradientFont(pFontManager, pTexture, Typeface.createFromAsset(pAssetManager, FontFactory.sAssetBasePath + pAssetPath), pSize, pAntiAlias,
+		pColorFrom.getARGBPackedInt(), pColorTo.getARGBPackedInt());
+	}
+
+	public static GradientFont createGradientFromAsset(final FontManager pFontManager, final ITexture pTexture, final AssetManager pAssetManager,
+			final String pAssetPath, final float pSize, final boolean pAntiAlias, final int pColorFrom, final int pColorTo) {
+		return new GradientFont(pFontManager, pTexture, Typeface.createFromAsset(pAssetManager, FontFactory.sAssetBasePath + pAssetPath), pSize, pAntiAlias, 
+				pColorFrom, pColorTo);
+	}
+	
+	public static GradientFont createGradientFromAsset(final FontManager pFontManager, final ITexture pTexture, final AssetManager pAssetManager, 
+			final String pAssetPath, final float pSize, final boolean pAntiAlias, final int[] pColors) {
+		return new GradientFont(pFontManager, pTexture, Typeface.createFromAsset(pAssetManager,  FontFactory.sAssetBasePath + pAssetPath), pSize, pAntiAlias, pColors);
+	}
+	
+	public static GradientFont createGradientFromAsset(final FontManager pFontManager, final ITexture pTexture, final AssetManager pAssetManager, 
+			final String pAssetPath, final float pSize, final boolean pAntiAlias, final Color[] pColors) {
+		return new GradientFont(pFontManager, pTexture, Typeface.createFromAsset(pAssetManager, FontFactory.sAssetBasePath + pAssetPath), pSize, pAntiAlias, pColors);
+	}
+	
+	public static GradientFont createGradientFromAsset(final FontManager pFontManager, final ITexture pTexture, final AssetManager pAssetManager, 
+			final String pAssetPath, final float pSize, final boolean pAntiAlias, final LinearGradient pLinearGradient) {
+		return new GradientFont(pFontManager, pTexture, Typeface.createFromAsset(pAssetManager, FontFactory.sAssetBasePath + pAssetPath), pSize, pAntiAlias, pLinearGradient);
+	}
+	
+	public static GradientStrokeFont createGradientStrokeFromAsset(final FontManager pFontManager, final ITexture pTexture, final AssetManager pAssetManager,
+			final String pAssetPath, final float pSize, final boolean pAntiAlias, final Color pColorFrom, final Color pColorTo, final float pStrokeWidth,
+			final int pStrokeColor) {
+		return new GradientStrokeFont(pFontManager, pTexture, Typeface.createFromAsset(pAssetManager, FontFactory.sAssetBasePath + pAssetPath), pSize, pAntiAlias,
+				pColorFrom.getARGBPackedInt(), pColorTo.getARGBPackedInt(), pStrokeWidth, pStrokeColor);
+	}
+	
+	public static GradientStrokeFont createGradientStrokeFromAsset(final FontManager pFontManager, final ITexture pTexture, final AssetManager pAssetManager,
+			final String pAssetPath, final float pSize, final boolean pAntiAlias, final Color pColorFrom, final Color pColorTo, final float pStrokeWidth,
+			final Color pStrokeColor) {
+		return new GradientStrokeFont(pFontManager, pTexture, Typeface.createFromAsset(pAssetManager, FontFactory.sAssetBasePath + pAssetPath), pSize, pAntiAlias,
+				pColorFrom.getARGBPackedInt(), pColorTo.getARGBPackedInt(), pStrokeWidth, pStrokeColor.getARGBPackedInt());
+	}
+	
+	
+	public static GradientStrokeFont createGradientStrokeFromAsset(final FontManager pFontManager, final ITexture pTexture, final AssetManager pAssetManager,
+			final String pAssetPath, final float pSize, final boolean pAntiAlias, final int pColorFrom, final int pColorTo, final float pStrokeWidth, final int pStrokeColor) {
+		return new GradientStrokeFont(pFontManager, pTexture, Typeface.createFromAsset(pAssetManager, FontFactory.sAssetBasePath + pAssetPath), pSize, pAntiAlias, 
+				pColorFrom, pColorTo, pStrokeWidth, pStrokeColor);
+	}
+	
+	public static GradientStrokeFont createGradientStrokeFromAsset(final FontManager pFontManager, final ITexture pTexture, final AssetManager pAssetManager,
+			final String pAssetPath, final float pSize, final boolean pAntiAlias, final int pColorFrom, final int pColorTo, final float pStrokeWidth, final Color pStrokeColor) {
+		return new GradientStrokeFont(pFontManager, pTexture, Typeface.createFromAsset(pAssetManager, FontFactory.sAssetBasePath + pAssetPath), pSize, pAntiAlias, 
+				pColorFrom, pColorTo, pStrokeWidth, pStrokeColor.getARGBPackedInt());
+	}
+	
+	public static GradientStrokeFont createGradientStrokeFromAsset(final FontManager pFontManager, final ITexture pTexture, final AssetManager pAssetManager, 
+			final String pAssetPath, final float pSize, final boolean pAntiAlias, final int[] pColors, final float pStrokeWidth, final int pStrokeColor) {
+		return new GradientStrokeFont(pFontManager, pTexture, Typeface.createFromAsset(pAssetManager,  FontFactory.sAssetBasePath + pAssetPath), pSize, pAntiAlias,
+				pColors, pStrokeWidth, pStrokeColor);
+	}
+	
+	public static GradientStrokeFont createGradientStrokeFromAsset(final FontManager pFontManager, final ITexture pTexture, final AssetManager pAssetManager, 
+			final String pAssetPath, final float pSize, final boolean pAntiAlias, final int[] pColors, final float pStrokeWidth, final Color pStrokeColor) {
+		return new GradientStrokeFont(pFontManager, pTexture, Typeface.createFromAsset(pAssetManager,  FontFactory.sAssetBasePath + pAssetPath), pSize, pAntiAlias,
+				pColors, pStrokeWidth, pStrokeColor);
+	}
+	
+	public static GradientStrokeFont createGradientStrokeFromAsset(final FontManager pFontManager, final ITexture pTexture, final AssetManager pAssetManager, 
+			final String pAssetPath, final float pSize, final boolean pAntiAlias, final Color[] pColors, final float pStrokeWidth, final int pStrokeColor) {
+		return new GradientStrokeFont(pFontManager, pTexture, Typeface.createFromAsset(pAssetManager, FontFactory.sAssetBasePath + pAssetPath), pSize, pAntiAlias,
+				pColors, pStrokeWidth, pStrokeColor);
+	}
+	
+	public static GradientStrokeFont createGradientStrokeFromAsset(final FontManager pFontManager, final ITexture pTexture, final AssetManager pAssetManager, 
+			final String pAssetPath, final float pSize, final boolean pAntiAlias, final Color[] pColors, final float pStrokeWidth, final Color pStrokeColor) {
+		return new GradientStrokeFont(pFontManager, pTexture, Typeface.createFromAsset(pAssetManager, FontFactory.sAssetBasePath + pAssetPath), pSize, pAntiAlias,
+				pColors, pStrokeWidth, pStrokeColor);
+	}
+	
 	// ===========================================================
 	// Inner and Anonymous Classes
 	// ===========================================================
