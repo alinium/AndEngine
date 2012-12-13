@@ -5,6 +5,7 @@ import org.andengine.opengl.font.FontManager;
 import org.andengine.opengl.texture.ITexture;
 import org.andengine.util.color.Color;
 
+import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import android.graphics.Typeface;
@@ -32,6 +33,25 @@ public class GradientStrokeFont extends GradientFont {
 	public GradientStrokeFont(final FontManager pFontManager, final ITexture pTexture, final Typeface pTypeface, final float pSize, final boolean pAntiAlias,
 			final int pColorFromARGBPackedInt, final int pColorToARGBPackedInt, final float pStrokeWidth, final int pStrokeColorARGBPackedInt) {
 		super(pFontManager, pTexture, pTypeface, pSize, pAntiAlias, pColorFromARGBPackedInt, pColorToARGBPackedInt);
+		this.mStrokeWidth = pStrokeWidth;
+
+		this.mStrokePaint = new Paint();
+		this.mStrokePaint.setTypeface(pTypeface);
+		this.mStrokePaint.setStyle(Style.STROKE);
+		this.mStrokePaint.setStrokeWidth(pStrokeWidth);
+		this.mStrokePaint.setColor(pStrokeColorARGBPackedInt);
+		this.mStrokePaint.setTextSize(pSize);
+		this.mStrokePaint.setAntiAlias(pAntiAlias);
+	}
+	
+	public GradientStrokeFont(final FontManager pFontManager, final ITexture pTexture, final Typeface pTypeface, final float pSize, final boolean pAntiAlias,
+			final LinearGradient pLinearGradient, final float pStrokeWidth, final Color pStrokeColor) {
+		this(pFontManager, pTexture, pTypeface, pSize, pAntiAlias, pLinearGradient, pStrokeWidth, pStrokeColor.getARGBPackedInt());
+	}
+	
+	public GradientStrokeFont(final FontManager pFontManager, final ITexture pTexture, final Typeface pTypeface, final float pSize, final boolean pAntiAlias,
+			final LinearGradient pLinearGradient, final float pStrokeWidth, final int pStrokeColorARGBPackedInt) {
+		super(pFontManager, pTexture, pTypeface, pSize, pAntiAlias, pLinearGradient);
 		this.mStrokeWidth = pStrokeWidth;
 
 		this.mStrokePaint = new Paint();
