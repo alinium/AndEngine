@@ -5,11 +5,7 @@ import java.nio.ByteOrder;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.andengine.opengl.util.BufferUtils;
-import org.andengine.opengl.vbo.VertexBufferObject.DrawType;
 import org.andengine.opengl.vbo.attribute.VertexBufferObjectAttributes;
-import org.andengine.util.system.SystemUtils;
-
-import android.os.Build;
 
 /**
  * Compared to {@link ZeroMemoryVertexBufferObject}, all {@link SharedMemoryVertexBufferObject}s share a single {@link ByteBuffer} which is used by whichever {@link SharedMemoryVertexBufferObject} instance is currently buffering data,
@@ -80,10 +76,7 @@ public abstract class SharedMemoryVertexBufferObject extends ZeroMemoryVertexBuf
 			SharedMemoryVertexBufferObject.sSharedByteBufferLock.lock();
 	
 			if(SharedMemoryVertexBufferObject.sSharedByteBuffer != null) {
-				if(SystemUtils.isAndroidVersion(Build.VERSION_CODES.HONEYCOMB, Build.VERSION_CODES.HONEYCOMB_MR2)) {
-					/* Cleanup due to 'Honeycomb workaround for issue 16941' in constructor. */
-					BufferUtils.freeDirect(SharedMemoryVertexBufferObject.sSharedByteBuffer);
-				}
+				BufferUtils.freeDirectByteBuffer(SharedMemoryVertexBufferObject.sSharedByteBuffer);
 
 				SharedMemoryVertexBufferObject.sSharedByteBuffer = null;
 			}
@@ -99,19 +92,11 @@ public abstract class SharedMemoryVertexBufferObject extends ZeroMemoryVertexBuf
 		final int byteCapacity = this.getByteCapacity();
 
 		if(SharedMemoryVertexBufferObject.sSharedByteBuffer == null || SharedMemoryVertexBufferObject.sSharedByteBuffer.capacity() < byteCapacity) {
-			if(SystemUtils.isAndroidVersion(Build.VERSION_CODES.HONEYCOMB, Build.VERSION_CODES.HONEYCOMB_MR2)) {
-				/* Cleanup due to 'Honeycomb workaround for issue 16941' in constructor. */
-				if(SharedMemoryVertexBufferObject.sSharedByteBuffer != null) {
-					BufferUtils.freeDirect(SharedMemoryVertexBufferObject.sSharedByteBuffer);
-				}
-
-				/* Honeycomb workaround for issue 16941. */
-				SharedMemoryVertexBufferObject.sSharedByteBuffer = BufferUtils.allocateDirect(byteCapacity);
-			} else {
-				/* Other SDK versions. */
-				SharedMemoryVertexBufferObject.sSharedByteBuffer = ByteBuffer.allocateDirect(byteCapacity);
+			if(SharedMemoryVertexBufferObject.sSharedByteBuffer != null) {
+				BufferUtils.freeDirectByteBuffer(SharedMemoryVertexBufferObject.sSharedByteBuffer);
 			}
 
+			SharedMemoryVertexBufferObject.sSharedByteBuffer = BufferUtils.allocateDirectByteBuffer(byteCapacity);
 			SharedMemoryVertexBufferObject.sSharedByteBuffer.order(ByteOrder.nativeOrder());
 		}
 

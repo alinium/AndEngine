@@ -11,7 +11,7 @@ import android.util.Log;
  * @author Nicolas Gramlich
  * @since 13:29:16 - 08.03.2010
  */
-public class Debug implements Constants {
+public class Debug {
 	// ===========================================================
 	// Constants
 	// ===========================================================
@@ -408,7 +408,7 @@ public class Debug implements Constants {
 	// Inner and Anonymous Classes
 	// ===========================================================
 
-	public static enum DebugLevel implements Comparable<DebugLevel> {
+	public static enum DebugLevel {
 		NONE, ERROR, WARNING, INFO, DEBUG, VERBOSE;
 
 		public static DebugLevel ALL = DebugLevel.VERBOSE;

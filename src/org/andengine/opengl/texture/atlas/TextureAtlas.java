@@ -2,6 +2,7 @@ package org.andengine.opengl.texture.atlas;
 
 import java.util.ArrayList;
 
+import org.andengine.opengl.texture.ITextureStateListener;
 import org.andengine.opengl.texture.PixelFormat;
 import org.andengine.opengl.texture.Texture;
 import org.andengine.opengl.texture.TextureManager;
@@ -83,11 +84,10 @@ public abstract class TextureAtlas<T extends ITextureAtlasSource> extends Textur
 	/**
 	 * @see {@link ITextureAtlas#setTextureStateListener(ITextureAtlasStateListener)}
 	 */
-	@SuppressWarnings("unchecked")
 	@Deprecated
 	@Override
 	public void setTextureStateListener(final ITextureStateListener pTextureStateListener) {
-		super.setTextureStateListener((ITextureAtlasStateListener<T>)pTextureStateListener);
+		super.setTextureStateListener(pTextureStateListener);
 	}
 
 	@Override

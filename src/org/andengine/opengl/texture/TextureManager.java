@@ -1,14 +1,15 @@
 package org.andengine.opengl.texture;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
 import org.andengine.opengl.texture.bitmap.BitmapTexture;
-import org.andengine.opengl.texture.bitmap.BitmapTexture.BitmapTextureFormat;
+import org.andengine.opengl.texture.bitmap.BitmapTextureFormat;
 import org.andengine.opengl.util.GLState;
+import org.andengine.util.adt.io.in.AssetInputStreamOpener;
+import org.andengine.util.adt.io.in.IInputStreamOpener;
 import org.andengine.util.debug.Debug;
 
 import android.content.res.AssetManager;
@@ -37,6 +38,8 @@ public class TextureManager {
 	private final ArrayList<ITexture> mTexturesToBeLoaded = new ArrayList<ITexture>();
 	private final ArrayList<ITexture> mTexturesToBeUnloaded = new ArrayList<ITexture>();
 
+	private TextureWarmUpVertexBufferObject mTextureWarmUpVertexBufferObject;
+
 	// ===========================================================
 	// Constructors
 	// ===========================================================
@@ -54,7 +57,7 @@ public class TextureManager {
 	// ===========================================================
 
 	public synchronized void onCreate() {
-
+		this.mTextureWarmUpVertexBufferObject = new TextureWarmUpVertexBufferObject();
 	}
 
 	public synchronized void onReload() {
@@ -74,6 +77,8 @@ public class TextureManager {
 			this.mTexturesManaged.removeAll(this.mTexturesToBeUnloaded); // TODO Check if removeAll uses iterator internally!
 			this.mTexturesToBeUnloaded.clear();
 		}
+
+		this.mTextureWarmUpVertexBufferObject.setNotLoadedToHardware();
 	}
 
 	public synchronized void onDestroy() {
@@ -86,6 +91,9 @@ public class TextureManager {
 		this.mTexturesLoaded.clear();
 		this.mTexturesManaged.clear();
 		this.mTexturesMapped.clear();
+
+		this.mTextureWarmUpVertexBufferObject.dispose();
+		this.mTextureWarmUpVertexBufferObject = null;
 	}
 
 	public synchronized boolean hasMappedTexture(final String pID) {
@@ -244,6 +252,9 @@ public class TextureManager {
 				if(!textureToBeLoaded.isLoadedToHardware()) {
 					try {
 						textureToBeLoaded.loadToHardware(pGLState);
+
+						/* Execute the warm-up to ensure the texture data is actually moved to the GPU. */
+						this.mTextureWarmUpVertexBufferObject.warmup(pGLState, textureToBeLoaded);
 					} catch (final IOException e) {
 						Debug.e(e);
 					}
@@ -280,12 +291,7 @@ public class TextureManager {
 		if(this.hasMappedTexture(pID)) {
 			return this.getMappedTexture(pID);
 		} else {
-			final ITexture texture = new BitmapTexture(this, pTextureOptions) {
-				@Override
-				protected InputStream onGetInputStream() throws IOException {
-					return pAssetManager.open(pAssetPath);
-				}
-			};
+			final ITexture texture = new BitmapTexture(this, new AssetInputStreamOpener(pAssetManager, pAssetPath), pTextureOptions);
 			this.loadTexture(texture);
 			this.addMappedTexture(pID, texture);
 
@@ -293,28 +299,23 @@ public class TextureManager {
 		}
 	}
 
-	public synchronized ITexture getTexture(final String pID, final IAssetInputStreamOpener pAssetInputStreamOpener, final String pAssetPath) throws IOException {
-		return this.getTexture(pID, pAssetInputStreamOpener, pAssetPath, TextureOptions.DEFAULT);
+	public synchronized ITexture getTexture(final String pID, final IInputStreamOpener pInputStreamOpener) throws IOException {
+		return this.getTexture(pID, pInputStreamOpener, TextureOptions.DEFAULT);
 	}
 
-	public synchronized ITexture getTexture(final String pID, final IAssetInputStreamOpener pAssetInputStreamOpener, final String pAssetPath, final TextureOptions pTextureOptions) throws IOException {
-		return this.getTexture(pID, pAssetInputStreamOpener, pAssetPath, BitmapTextureFormat.RGBA_8888, pTextureOptions);
+	public synchronized ITexture getTexture(final String pID, final IInputStreamOpener pInputStreamOpener, final TextureOptions pTextureOptions) throws IOException {
+		return this.getTexture(pID, pInputStreamOpener, BitmapTextureFormat.RGBA_8888, pTextureOptions);
 	}
 
-	public synchronized ITexture getTexture(final String pID, final IAssetInputStreamOpener pAssetInputStreamOpener, final String pAssetPath, final BitmapTextureFormat pBitmapTextureFormat, final TextureOptions pTextureOptions) throws IOException {
-		return this.getTexture(pID, pAssetInputStreamOpener, pAssetPath, pBitmapTextureFormat, pTextureOptions, true);
+	public synchronized ITexture getTexture(final String pID, final IInputStreamOpener pInputStreamOpener, final BitmapTextureFormat pBitmapTextureFormat, final TextureOptions pTextureOptions) throws IOException {
+		return this.getTexture(pID, pInputStreamOpener, pBitmapTextureFormat, pTextureOptions, true);
 	}
 
-	public synchronized ITexture getTexture(final String pID, final IAssetInputStreamOpener pAssetInputStreamOpener, final String pAssetPath, final BitmapTextureFormat pBitmapTextureFormat, final TextureOptions pTextureOptions, final boolean pLoadToHardware) throws IOException {
+	public synchronized ITexture getTexture(final String pID, final IInputStreamOpener pInputStreamOpener, final BitmapTextureFormat pBitmapTextureFormat, final TextureOptions pTextureOptions, final boolean pLoadToHardware) throws IOException {
 		if(this.hasMappedTexture(pID)) {
 			return this.getMappedTexture(pID);
 		} else {
-			final ITexture texture = new BitmapTexture(this, pBitmapTextureFormat, pTextureOptions) {
-				@Override
-				protected InputStream onGetInputStream() throws IOException {
-					return pAssetInputStreamOpener.open(pAssetPath);
-				}
-			};
+			final ITexture texture = new BitmapTexture(this, pInputStreamOpener, pBitmapTextureFormat, pTextureOptions);
 			if(pLoadToHardware) {
 				this.loadTexture(texture);
 			}
@@ -327,16 +328,4 @@ public class TextureManager {
 	// ===========================================================
 	// Inner and Anonymous Classes
 	// ===========================================================
-
-	public interface IAssetInputStreamOpener {
-		// ===========================================================
-		// Constants
-		// ===========================================================
-
-		// ===========================================================
-		// Methods
-		// ===========================================================
-
-		public InputStream open(final String pAssetPath);
-	}
 }
